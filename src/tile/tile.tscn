@@ -1,3 +1,68 @@
-[gd_scene format=3 uid="uid://71iakae45k4u"]
+[gd_scene load_steps=3 format=3 uid="uid://71iakae45k4u"]
 
-[node name="Tile" type="Node2D"]
+[ext_resource type="Script" path="res://tile/tile.gd" id="1_7ej21"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wb2w0"]
+size = Vector2(60, 60)
+
+[node name="Tile" type="Node2D" groups=["tile"]]
+script = ExtResource("1_7ej21")
+size = Vector2i(0, 0)
+
+[node name="BGRect" type="ColorRect" parent="."]
+visible = false
+offset_left = -30.0
+offset_top = -30.0
+offset_right = 30.0
+offset_bottom = 30.0
+mouse_filter = 2
+color = Color(6.257e-07, 0.556428, 0.393681, 1)
+
+[node name="Area" type="Area2D" parent="."]
+collision_mask = 0
+
+[node name="CollShape" type="CollisionShape2D" parent="Area"]
+shape = SubResource("RectangleShape2D_wb2w0")
+
+[node name="UpRay" type="RayCast2D" parent="Area"]
+target_position = Vector2(0, -60)
+collide_with_areas = true
+collide_with_bodies = false
+
+[node name="RightRay" type="RayCast2D" parent="Area"]
+target_position = Vector2(60, 0)
+collide_with_areas = true
+collide_with_bodies = false
+
+[node name="DownRay" type="RayCast2D" parent="Area"]
+target_position = Vector2(0, 60)
+collide_with_areas = true
+collide_with_bodies = false
+
+[node name="LeftRay" type="RayCast2D" parent="Area"]
+target_position = Vector2(-60, 0)
+collide_with_areas = true
+collide_with_bodies = false
+
+[node name="Selection" type="ReferenceRect" parent="."]
+visible = false
+offset_left = -30.0
+offset_top = -30.0
+offset_right = 30.0
+offset_bottom = 30.0
+mouse_filter = 2
+border_width = 2.0
+editor_only = false
+
+[node name="Label" type="Label" parent="."]
+offset_left = -56.0
+offset_top = -64.0
+offset_right = 56.0
+offset_bottom = 64.0
+theme_override_font_sizes/font_size = 72
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[connection signal="input_event" from="Area" to="." method="_on_area_input_event"]
+[connection signal="mouse_shape_entered" from="Area" to="." method="_on_area_mouse_shape_entered"]
+[connection signal="mouse_shape_exited" from="Area" to="." method="_on_area_mouse_shape_exited"]
