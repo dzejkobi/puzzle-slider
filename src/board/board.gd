@@ -61,11 +61,13 @@ func shuffle_tiles(n_swaps: int, swap_time: float) -> void:
 	var neighbours: Array[Tile]
 	var tile_to_swap: Tile
 	var last_tile: Tile
+	var last_tile_index: int
 	for i: int in range(n_swaps):
 		neighbours = void_tile.get_neighbours()
-		if last_tile:
+		last_tile_index = neighbours.find(last_tile)
+		if last_tile_index > -1:
 			# do not reverse the last swap
-			neighbours.remove_at(neighbours.find(last_tile))
+			neighbours.remove_at(last_tile_index)
 		tile_to_swap = neighbours[randi_range(0, len(neighbours) - 1)]
 		void_tile.swap_position_with_tile(tile_to_swap, swap_time)
 		last_tile = tile_to_swap
