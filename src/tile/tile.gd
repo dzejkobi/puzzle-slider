@@ -19,6 +19,7 @@ extends Node2D
 @export var padding: int = 4
 @export var is_void: bool = false
 
+
 var is_hovered: bool = false:
 	get:
 		return is_hovered
@@ -77,21 +78,42 @@ func setup(params: Dictionary = {}) -> void:
 		bg_rect.visible = false
 
 
-func get_void_neighbour() -> Tile:
-	for ray: RayCast2D in neighbour_rays:
-		if ray.is_colliding():
-			var neighbour = ray.get_collider()
-			if neighbour:
-				var parent = neighbour.get_parent()
-				if parent is Tile and parent.is_void:
-					return parent
+func get_neighbour(ray: RayCast2D) -> Tile:
+	if ray.is_colliding():
+		var neighbour = ray.get_collider()
+		if neighbour:
+			var parent = neighbour.get_parent()
+			if parent is Tile:
+				return parent
 	return null
 
 
-func swap_position_with_tile(tile: Tile) -> void:
-	var pos = self.position
-	self.position = tile.position
-	tile.position = pos
+func get_neighbours(exclude_void: bool = true) -> Array[Tile]:
+	var neighbours: Array[Tile] = []
+	var neighbour: Tile
+	for ray: RayCast2D in neighbour_rays:
+		neighbour = get_neighbour(ray)
+		if neighbour and not (exclude_void and neighbour.is_void):
+			neighbours.append(neighbour)
+	return neighbours
+
+
+func get_void_neighbour() -> Tile:
+	var neighbour: Tile
+	for ray: RayCast2D in neighbour_rays:
+		neighbour = get_neighbour(ray)
+		if neighbour and neighbour.is_void:
+			return neighbour
+	return null
+
+
+func swap_position_with_tile(tile: Tile, time: float) -> void:
+	EventBus.tile_move_start.emit(self)
+	var move_tween_1 = get_tree().create_tween()
+	move_tween_1.tween_property(self, "position", tile.position, time)
+	move_tween_1.tween_callback(EventBus.tile_move_stop.emit.bind(self))
+	var move_tween_2 = get_tree().create_tween()
+	move_tween_2.tween_property(tile, "position", self.position, time)
 
 
 func _process(delta: float) -> void:

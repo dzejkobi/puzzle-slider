@@ -2,10 +2,13 @@ extends Node2D
 
 @export var tile_amount: Vector2i = Vector2i(4, 4)
 @export var game_mode: Consts.GameMode = Consts.GameMode.SWAP_VOID
+@export var swap_time: float = 0.1
 
 @onready var coll_shape: CollisionShape2D = $Area/CollShape
 
 var tile_scene = preload('res://tile/tile.tscn')
+var move_in_progress: bool = false
+var void_tile: Tile
 
 
 func get_tiles() -> Array[Tile]:
@@ -49,18 +52,47 @@ func set_tiles() -> void:
 					game_mode == Consts.GameMode.SWAP_VOID
 				)
 			})
+			if tile.is_void:
+				void_tile = tile
 			ordinal += 1
 
 
+func shuffle_tiles(n_swaps: int, swap_time: float) -> void:
+	var neighbours: Array[Tile]
+	var tile_to_swap: Tile
+	var last_tile: Tile
+	for i: int in range(n_swaps):
+		neighbours = void_tile.get_neighbours()
+		if last_tile:
+			# do not reverse the last swap
+			neighbours.remove_at(neighbours.find(last_tile))
+		tile_to_swap = neighbours[randi_range(0, len(neighbours) - 1)]
+		void_tile.swap_position_with_tile(tile_to_swap, swap_time)
+		last_tile = tile_to_swap
+		await EventBus.tile_move_stop
+		
+
 func _on_tile_clicked(tile: Tile) -> void:
-	var void_tile: Tile = tile.get_void_neighbour()
-	if void_tile:
-		tile.swap_position_with_tile(void_tile)
+	if not move_in_progress:
+		var void_tile: Tile = tile.get_void_neighbour()
+		if void_tile:
+			tile.swap_position_with_tile(void_tile, swap_time)
+			
+			
+func _on_tile_move_start(tile: Tile) -> void:
+	move_in_progress = true
+
+
+func _on_tile_move_stop(tile: Tile) -> void:
+	move_in_progress = false
 
 
 func setup() -> void:
 	set_tiles()
 	EventBus.tile_clicked.connect(_on_tile_clicked)
+	EventBus.tile_move_start.connect(_on_tile_move_start)
+	EventBus.tile_move_stop.connect(_on_tile_move_stop)
+	self.call_deferred("shuffle_tiles", 100, 0.03)
 
 
 func _ready() -> void:
