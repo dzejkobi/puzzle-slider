@@ -6,3 +6,5 @@
 
 [node name="Board" parent="." instance=ExtResource("1_2cb46")]
 position = Vector2(588, 324)
+game_mode = 1
+show_numbers = false
