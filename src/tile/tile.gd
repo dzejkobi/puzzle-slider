@@ -183,10 +183,16 @@ func get_void_neighbour() -> Tile:
 	return null
 
 
-func swap_position_with_tile(tile: Tile, time: float) -> void:
+func swap_position_with_tile(
+	tile: Tile, time: float, play_sound: bool = true
+) -> void:
 	EventBus.tile_move_start.emit(self)
 	moving_to = tile.position
 	tile.moving_to = position
+	if play_sound:
+		AudioPlayer.play_sfx(
+			AudioPlayer.pick_sound_at_random(AudioPlayer.SHUFFLES_SFX), 0.5
+		)
 	var move_tween_1 = get_tree().create_tween()
 	move_tween_1.tween_property(self, "position", tile.position, time)
 	move_tween_1.tween_callback(EventBus.tile_move_stop.emit.bind(self))

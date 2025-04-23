@@ -6,7 +6,8 @@ extends Node2D
 @export var swap_time: float = 0.1
 @export var shuffle_time: float = 0.05
 @export var shuffle_count: int = 100
-@export_file var bg_image_path: String = 'res://media/img/koala.jpg'
+@export var play_music: bool = true
+@export_file var bg_image_path: String = "res://media/img/koala.jpg"
 
 @onready var coll_shape: CollisionShape2D = $Area/CollShape
 @onready var bg_image_rect: TextureRect = $BgImageRect
@@ -170,6 +171,8 @@ func _on_tile_move_stop(tile: Tile) -> void:
 
 
 func setup() -> void:
+	if play_music:
+		AudioPlayer.play_music(AudioPlayer.MUSIC1, 0.03)
 	set_bg_image(bg_image_path)
 	set_tiles()
 	EventBus.tile_clicked.connect(_on_tile_clicked)
