@@ -89,7 +89,10 @@ func resize(new_size: Vector2i):
 	)
 	selection.size = new_size
 	selection.position = -new_size / 2
+	label.size = new_size
+	label.position = selection.position
 	label.add_theme_font_size_override("font_size", int(new_size.y * 0.6))
+
 	
 	up_ray.target_position = Vector2i(0, -size.y)
 	right_ray.target_position = Vector2i(size.x, 0)

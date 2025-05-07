@@ -4,7 +4,10 @@
 
 [node name="Game" type="Node2D"]
 
+[node name="BgColorRect" type="ColorRect" parent="."]
+offset_right = 1920.0
+offset_bottom = 1080.0
+color = Color(0, 0, 0, 1)
+
 [node name="Board" parent="." instance=ExtResource("1_2cb46")]
-position = Vector2(588, 324)
-game_mode = 1
-show_numbers = false
+position = Vector2(976, 538)

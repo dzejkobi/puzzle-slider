@@ -9,6 +9,7 @@ extends Node2D
 @export var play_music: bool = true
 @export_file var bg_image_path: String = "res://media/img/koala.jpg"
 
+@onready var solved_label: Label = $SolvedLabel
 @onready var coll_shape: CollisionShape2D = $Area/CollShape
 @onready var bg_image_rect: TextureRect = $BgImageRect
 
@@ -17,6 +18,7 @@ var move_in_progress: bool = false
 var void_tile: Tile = null
 var curr_tile: Tile = null
 var bg_image: Image
+var is_solved: bool = false
 
 const GAME_MODE_SETUP: = {
 	Consts.GameMode.SWAP_VOID: {
@@ -41,7 +43,26 @@ func get_tiles() -> Array[Tile]:
 	var result: Array[Tile] = []
 	result.assign(get_tree().get_nodes_in_group("tile"))
 	return result
-	
+
+
+func get_solved_status() -> bool:
+	var status := true
+	for tile: Tile in get_tiles():
+		if not tile.is_matching():
+			status = false
+	return status
+
+
+func check_solved_status() -> void:
+	is_solved = get_solved_status()
+	if is_solved:
+		var label_tween := get_tree().create_tween()
+		var bg_tween :=  get_tree().create_tween()
+		bg_image_rect.z_index = 90
+		bg_image_rect.modulate.a = 1.0
+		bg_tween.tween_property(bg_image_rect, "modulate:a", 1.0, 1.0)
+		label_tween.tween_property(solved_label, "modulate:a", 1.0, 1.0)
+
 
 func get_tile_size() -> Vector2i:
 	return Vector2i(
@@ -109,6 +130,10 @@ func shuffle_tiles_void(n_swaps: int, swp_time: float) -> void:
 		await EventBus.tile_move_stop
 		await EventBus.tile_move_stop
 		
+		# Additional timeout as workarround to the bug when tiles
+		# are not swapped correctly if the swap time is below 0.12 sec.
+		await get_tree().create_timer(0.01).timeout
+		
 		
 func shuffle_tiles_any(n_swaps: int, swp_time: float) -> void:
 	var last_tiles: Array[Tile] = []
@@ -142,6 +167,8 @@ func shuffle_tiles_any(n_swaps: int, swp_time: float) -> void:
 		
 
 func _on_tile_clicked(tile: Tile) -> void:
+	if is_solved:
+		return
 	if game_mode == Consts.GameMode.SWAP_VOID:
 		if not move_in_progress:
 			var void_tl: Tile = tile.get_void_neighbour()
@@ -168,6 +195,7 @@ func _on_tile_move_start(_tile: Tile) -> void:
 
 func _on_tile_move_stop(tile: Tile) -> void:
 	move_in_progress = false
+	check_solved_status()
 
 
 func setup() -> void:

@@ -22,6 +22,14 @@ Consts="*res://autoloads/consts.gd"
 EventBus="*res://autoloads/event_bus.gd"
 AudioPlayer="*res://autoloads/audio_player.tscn"
 
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+window/size/mode=2
+window/stretch/mode="canvas_items"
+window/stretch/aspect="keep_width"
+
 [editor]
 
 version_control/plugin_name="GitPlugin"
